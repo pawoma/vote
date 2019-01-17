@@ -1,28 +1,57 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <router-view v-if="loaded"></router-view>
+    <bottom-menu></bottom-menu>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+/* eslint-disable */
+
+import BottomMenu from "./components/bottomMenu";
+import { getOpenID } from "@/services";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    HelloWorld
+    BottomMenu
+  },
+  data() {
+    return {
+      loaded: false
+    };
+  },
+  created() {
+    if ($.cookie("userInfo")) {
+      let userInfo = JSON.parse($.cookie("userInfo"));
+      this.$store.commit("UPDATE_USERINFO", userInfo);
+      this.loaded = true;
+    } else {
+      let params = {
+        Code: GetQueryString("code")
+      };
+      getOpenID(params).then(userInfo => {
+        this.$store.commit("UPDATE_USERINFO", userInfo);
+        $.cookie("userInfo", JSON.stringify(userInfo));
+        this.loaded = true;
+      });
+    }
   }
-}
+};
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  min-width: 100vw;
+  min-height: 100vh;
 }
 </style>
