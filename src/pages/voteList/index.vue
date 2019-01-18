@@ -3,7 +3,7 @@
     <img :src="require('@/assets/top.jpg')" alt class="page-top">
     <div class="page-center">
       <div class="page-center-con">
-        <notice-bar style="background:transparent" text="足协杯战线连续第2年上演广州德比战，上赛季半决赛上恒大以两回合5-3的总比分淘汰富力。" left-icon="volume-o"/>
+        <notice-bar style="background:transparent" :text="noticeText" left-icon="volume-o"/>
 
         <div class="message-box">
           <div class="topArea-else-data">
@@ -80,6 +80,7 @@ export default {
       list: [],
       voteCount: 0,
       voteUser: 0,
+      noticeText: "",
       detailImg: "",
       voteDetail: {},
       visibleDetail: false
@@ -129,7 +130,7 @@ export default {
 
         this.voteCount = stat.VoteCount; //总投票数
         this.voteUser = stat.VoteUser; //热度
-        this.voteUser = stat.VoteUser; //热度
+        this.noticeText = stat.Content; // 通知内容
 
         this.$store.commit("UPDATE_LEVEL", stat.Level);
         this.$store.commit("UPDATE_IS_LOGIN", !!stat.Name);
@@ -172,10 +173,11 @@ export default {
 
       postVote(params).then(res => {
         let Status = res[0].Status;
-        if (Status) {
+        if (Status == 1) {
           //投票成功，跳转抽奖
-          // flag = true;
           this.$router.push("/lottery");
+        } else if (Status == 2) {
+          Toast("非活动时间范围，活动时间：2019年1月19日10：00至2019年1月24日24：00");
         } else {
           Toast("您的投票次数已经用完！");
         }
